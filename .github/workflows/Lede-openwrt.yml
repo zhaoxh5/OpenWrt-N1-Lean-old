@@ -140,6 +140,7 @@ jobs:
           rm -rf config && mkdir config
           find openwrt/bin/targets/ -name "*config.buildinfo*" | xargs -i mv -f {} config
           echo "::set-output name=status::success"
+          
     - name: 上传.config配置文件在github空间    
       if: steps.config.outputs.status == 'success' && env.UPLOAD_CONFIG == 'true'
       uses: actions/upload-artifact@main
