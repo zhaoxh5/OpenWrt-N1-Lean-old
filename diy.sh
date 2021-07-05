@@ -6,20 +6,11 @@
 #
 
 # 修改openwrt登陆地址,把下面的192.168.2.2修改成你想要的就可以了
-sed -i "/uci commit fstab/a\uci commit network" $ZZZ
-sed -i "/uci commit network/i\uci set network.lan.ipaddr='192.168.0.5'" $ZZZ                           # IPv4 地址(openwrt后台地址)
-sed -i "/uci commit network/i\uci set network.lan.netmask='255.255.255.0'" $ZZZ                        # IPv4 子网掩码
-sed -i "/uci commit network/i\uci set network.lan.gateway='192.168.0.1'" $ZZZ                          # IPv4 网关
-#sed -i "/uci commit network/i\uci set network.lan.broadcast='192.168.2.255'" $ZZZ                     # IPv4 广播
-sed -i "/uci commit network/i\uci set network.lan.dns='222.88.88.88 222.85.85.85 180.76.76.76'" $ZZZ   # DNS(多个DNS要用空格分开)
-sed -i "/uci commit network/i\uci set network.lan.delegate='0'" $ZZZ                                   # 去掉LAN口使用内置的 IPv6 管理
-echo "close_dhcp" > package/base-files/files/etc/closedhcp                                             # 关闭DHCP服务
+# 修改openwrt登陆地址,把下面的192.168.1.1修改成你想要的就可以了
+sed -i 's/192.168.1.1/192.168.0.5/g' ./package/base-files/files/bin/config_generate
 
 # 修改主机名字，把OpenWrt-123修改你喜欢的就行（不能纯数字或者使用中文）
 sed -i 's/OpenWrt/Phicomm-N1/g' ./package/base-files/files/bin/config_generate
-
-# 选择argon为默认主题
-sed -i 's/luci-theme-bootstrap/luci-theme-argon/g' feeds/luci/collections/luci/Makefile
 
 # 设置密码为空（安装固件时无需密码登陆，然后自己修改想要的密码）
 #sed -i 's@.*CYXluq4wUazHjmCDBCqXF*@#&@g' ./package/lean/default-settings/files/zzz-default-settings
@@ -31,12 +22,8 @@ sed -i 's/luci-theme-bootstrap/luci-theme-argon/g' feeds/luci/collections/luci/M
 
 
 #添加自定义插件链接（自己想要什么就github里面搜索然后添加）
-#git clone -b 18.06 https://github.com/garypang13/luci-theme-edge.git package/lean/luci-theme-edge  #主题-edge-动态登陆界面
-#git clone https://github.com/xiaoqingfengATGH/luci-theme-infinityfreedom.git package/lean/luci-theme-infinityfreedom  #透明主题
 git clone -b master https://github.com/vernesong/OpenClash.git package/lean/luci-app-openclash  #openclash出国软件
 #git clone https://github.com/frainzy1477/luci-app-clash.git package/lean/luci-app-clash  #clash出国软件
-#git clone https://github.com/tty228/luci-app-serverchan.git package/lean/luci-app-serverchan  #微信推送
-#git clone -b lede https://github.com/pymumu/luci-app-smartdns.git package/lean/luci-app-smartdns  #smartdns DNS加速
 #git clone https://github.com/jerrykuku/luci-app-jd-dailybonus.git package/lean/luci-app-jd-dailybonus  #京东签到
 #git clone https://github.com/project-lede/luci-app-godproxy.git package/luci-app-godproxy
 #svn co https://github.com/xiaorouji/openwrt-package/trunk/lienol/luci-app-passwall package/lean/luci-app-passwall  #passwall出国软件
