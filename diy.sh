@@ -6,19 +6,26 @@
 #
 
 # 修改openwrt登陆地址,把下面的192.168.2.2修改成你想要的就可以了
-sed -i 's/192.168.1.1/192.168.0.5/g' ./package/base-files/files/bin/config_generate
-
+sed -i "/uci commit fstab/a\uci commit network" $ZZZ
+sed -i "/uci commit network/i\uci set network.lan.ipaddr='192.168.0.5'" $ZZZ                      # IPv4 地址(openwrt后台地址)
+sed -i "/uci commit network/i\uci set network.lan.netmask='255.255.255.0'" $ZZZ                   # IPv4 子网掩码
+sed -i "/uci commit network/i\uci set network.lan.gateway='192.168.0.1'" $ZZZ                     # IPv4 网关
+#sed -i "/uci commit network/i\uci set network.lan.broadcast='192.168.2.255'" $ZZZ                 # IPv4 广播
+sed -i "/uci commit network/i\uci set network.lan.dns='114.114.114.114'" $ZZZ                     # DNS(多个DNS要用空格分开)
+sed -i "/uci commit network/i\uci set network.lan.delegate='0'" $ZZZ                              # 去掉LAN口使用内置的 IPv6 管理
 
 # 修改主机名字，把OpenWrt-123修改你喜欢的就行（不能纯数字或者使用中文）
-sed -i 's/OpenWrt/OpenWrt-N1/g' ./package/base-files/files/bin/config_generate
+sed -i 's/OpenWrt/Phicomm-N1/g' ./package/base-files/files/bin/config_generate
 
+# 选择argon为默认主题
+sed -i 's/luci-theme-bootstrap/luci-theme-argon/g' feeds/luci/collections/luci/Makefile
 
 # 设置密码为空（安装固件时无需密码登陆，然后自己修改想要的密码）
 #sed -i 's@.*CYXluq4wUazHjmCDBCqXF*@#&@g' ./package/lean/default-settings/files/zzz-default-settings
 
 
 # 使用源码自带ShadowSocksR Plus+出国软件
-sed -i 's/^#\(.*helloworld\)/\1/' feeds.conf.default
+#sed -i 's/^#\(.*helloworld\)/\1/' feeds.conf.default
 
 
 #内核版本是会随着源码更新而改变的，在coolsnowwolf/lede的源码查看最好，以X86机型为例，源码的target/linux/x86文件夹可以看到有几个内核版本，x86文件夹里Makefile可以查看源码正在使用内核版本
