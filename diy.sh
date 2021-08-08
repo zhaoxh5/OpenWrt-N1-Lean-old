@@ -21,6 +21,7 @@ sed -i 's/PATCHVER:=5.10/PATCHVER:=5.4/g' ./target/linux/armvirt/Makefile  #修�
 
 #添加自定义插件链接（自己想要什么就github里面搜索然后添加）
 git clone -b master https://github.com/vernesong/OpenClash.git package/lean/luci-app-openclash  #openclash出国软件
+git clone https://github.com/small-5/luci-app-adblock-plus.git package/lean/luci-app-adblock-plus #luci-app-adblock-plus去广告软件
 #git clone https://github.com/frainzy1477/luci-app-clash.git package/lean/luci-app-clash  #clash出国软件
 #git clone https://github.com/jerrykuku/luci-app-jd-dailybonus.git package/lean/luci-app-jd-dailybonus  #京东签到
 #git clone https://github.com/project-lede/luci-app-godproxy.git package/luci-app-godproxy
