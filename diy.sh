@@ -27,7 +27,6 @@ git clone https://github.com/small-5/luci-app-adblock-plus.git package/lean/luci
 #git clone https://github.com/project-lede/luci-app-godproxy.git package/luci-app-godproxy
 #svn co https://github.com/xiaorouji/openwrt-package/trunk/lienol/luci-app-passwall package/lean/luci-app-passwall  #passwall出国软件
 #svn co https://github.com/xiaorouji/openwrt-package/trunk/package package/lean/package  #passwall出国软件配套
-svn co https://github.com/Lienol/openwrt/trunk/package/diy/adguardhome package/lean/adguardhome
 svn co https://github.com/Lienol/openwrt/trunk/package/diy/luci-app-adguardhome package/lean/luci-app-adguardhome
 
 rm -rf ./package/lean/luci-theme-argon && git clone -b 18.06 https://github.com/jerrykuku/luci-theme-argon.git package/lean/luci-theme-argon  #新的argon主题
