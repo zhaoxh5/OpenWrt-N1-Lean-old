@@ -47,8 +47,8 @@ env:
   UPLOAD_BIN_DIR: false
   UPLOAD_CONFIG: true
   UPLOAD_FIRMWARE: true
-  UPLOAD_COWTRANSFER: true
-  UPLOAD_WETRANSFER: true
+  UPLOAD_COWTRANSFER: false
+  UPLOAD_WETRANSFER: false
   TZ: Asia/Shanghai
 
 jobs:
@@ -212,7 +212,8 @@ jobs:
       if: steps.organizer.outputs.status == 'success' && env.UPLOAD_FIRMWARE == 'true'
       with:
         name: openwrt_armvirt_${{ env.PACKAGED_OUTPUTDATE }}
-        path:  ${{ env.PACKAGED_OUTPUTPATH }}/*
+        path:  opt/openwrt_packit/tmp/*.img.gz
+#        path:  ${{ env.PACKAGED_OUTPUTPATH }}/*
 
 #    - name: Upload OpenWrt Firmware to Releases
 #      uses: softprops/action-gh-release@v1
