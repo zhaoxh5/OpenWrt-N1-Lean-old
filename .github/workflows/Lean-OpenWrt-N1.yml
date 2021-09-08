@@ -80,8 +80,6 @@ jobs:
         df -hT $PWD
         git clone --depth 1 $REPO_URL -b $REPO_BRANCH openwrt
         ln -sf /workdir/openwrt $GITHUB_WORKSPACE/openwrt
-        cd openwrt
-        echo "src-git ssrp https://github.com/fw876/helloworld.git" >> ./feeds.conf.default
         
     - name: 加载feeds跟自定义插件
       run: |
@@ -201,6 +199,21 @@ jobs:
       with:
         name: OpenWrt_firmware_${{ env.DEVICE_NAME }}_${{ env.FILE_DATE }}
         path: ${{ env.FIRMWARE }}
+        
+    - name: Package Armvirt as OpenWrt
+      uses: unifreq/openwrt_packit@master
+      env:
+      OPENWRT_ARMVIRT: openwrt/bin/targets/*/*/*.tar.gz
+      PACKAGE_SOC: s905d
+      KERNEL_VERSION_NAME: 5.4.144
+      
+    - name: Upload OpenWrt Firmware to Releases
+      uses: softprops/action-gh-release@v1
+      env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+      tag_name: openwrt_armvirt_${{ env.PACKAGED_OUTPUTDATE }}
+      files: ${{ env.PACKAGED_OUTPUTPATH }}/*
 
     - name: 上传固件到奶牛快传
       if: steps.organizer.outputs.status == 'success' && env.UPLOAD_COWTRANSFER == 'true' && !cancelled()
