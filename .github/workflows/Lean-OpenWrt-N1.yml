@@ -117,6 +117,21 @@ jobs:
       with:
         name: N1.Lean.config_${{ env.Compile_Date }}
         path: config.txt
+    
+    - name: 提取config.buildinfo配置文件
+      id: config
+      run: |
+          rm -rf config && mkdir config
+          find openwrt/bin/targets/ -name "*config.buildinfo*" | xargs -i mv -f {} config
+                    
+    - name: 上传.config配置文件在github空间    
+      if: env.UPLOAD_CONFIG == 'true'
+      uses: actions/upload-artifact@main
+      with:
+        name: config.buildinfo_${{ env.FILE_DATE }}
+        path: ./config
+
+
 #        echo "TARGET_BOARD=$(awk -F '[="]+' '/TARGET_BOARD/{print $2}' .config)" >> $GITHUB_ENV
 #        echo "TARGET_SUBTARGET=$(awk -F '[="]+' '/TARGET_SUBTARGET/{print $2}' .config)" >> $GITHUB_ENV
 #        if [ `grep -c "CONFIG_TARGET_x86_64=y" .config` -eq '1' ]; then
@@ -180,18 +195,7 @@ jobs:
         name: OpenWrt_bin_${{ env.DEVICE_NAME }}_${{ env.FILE_DATE }}
         path: openwrt/bin
         
-    - name: 提取config.buildinfo配置文件
-      id: config
-      run: |
-          rm -rf config && mkdir config
-          find openwrt/bin/targets/ -name "*config.buildinfo*" | xargs -i mv -f {} config
-                    
-    - name: 上传.config配置文件在github空间    
-      if: env.UPLOAD_CONFIG == 'true'
-      uses: actions/upload-artifact@main
-      with:
-        name: config.buildinfo_${{ env.FILE_DATE }}
-        path: ./config
+
 
 #    - name: 提取config.buildinfo配置文件
 #      id: config
