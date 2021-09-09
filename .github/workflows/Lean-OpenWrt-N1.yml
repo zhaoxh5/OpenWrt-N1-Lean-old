@@ -114,7 +114,7 @@ jobs:
       if: env.UPLOAD_CONFIG == 'true'
       uses: actions/upload-artifact@main
       with:
-        name: N1.Lean.config_${{ env.FILE_DATE }}
+        name: N1.Lean.config_$$(date +"%Y%m%d%H%M")
         path: config.txt
 #        echo "TARGET_BOARD=$(awk -F '[="]+' '/TARGET_BOARD/{print $2}' .config)" >> $GITHUB_ENV
 #        echo "TARGET_SUBTARGET=$(awk -F '[="]+' '/TARGET_SUBTARGET/{print $2}' .config)" >> $GITHUB_ENV
