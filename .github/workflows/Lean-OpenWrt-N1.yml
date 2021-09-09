@@ -109,6 +109,13 @@ jobs:
         source "${PATH1}/common.sh" && Diy_chajian > /dev/null 2>&1
         make defconfig > /dev/null 2>&1
         ./scripts/diffconfig.sh > ${GITHUB_WORKSPACE}/config.txt
+    
+    - name: 上传.config配置文件在github空间    
+      if: steps.config.outputs.status == 'success' && env.UPLOAD_CONFIG == 'true'
+      uses: actions/upload-artifact@main
+      with:
+        name: N1.Lean.config_${{ env.FILE_DATE }}
+        path: config.txt
 #        echo "TARGET_BOARD=$(awk -F '[="]+' '/TARGET_BOARD/{print $2}' .config)" >> $GITHUB_ENV
 #        echo "TARGET_SUBTARGET=$(awk -F '[="]+' '/TARGET_SUBTARGET/{print $2}' .config)" >> $GITHUB_ENV
 #        if [ `grep -c "CONFIG_TARGET_x86_64=y" .config` -eq '1' ]; then
@@ -134,12 +141,12 @@ jobs:
 #          source "${PATH1}/upgrade.sh" && GET_TARGET_INFO
 #          source "${PATH1}/common.sh" && Diy_xinxi
 #        fi
-    - name: 上传.config配置文件在 github actions
-      uses: actions/upload-artifact@v2
-      if: env.UPLOAD_CONFIG == 'true'
-      with:
-        name: N1.Lean.config_${{ env.MY_DATE }}
-        path: config.txt
+#    - name: 上传.config配置文件在 github actions
+#      uses: actions/upload-artifact@v2
+#      if: env.UPLOAD_CONFIG == 'true'
+#      with:
+#        name: N1.Lean.config_${{ env.MY_DATE }}
+#        path: config.txt
 
     - name: 下载软件包
       id: package
