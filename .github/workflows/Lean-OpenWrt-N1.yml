@@ -237,7 +237,7 @@ jobs:
       uses: actions/upload-artifact@main
       if: steps.organizer.outputs.status == 'success' && env.UPLOAD_FIRMWARE == 'true'
       with:
-        name: openwrt_armvirt_${{ env.PACKAGED_OUTPUTDATE }}
+#        name: openwrt_armvirt_${{ env.PACKAGED_OUTPUTDATE }}
         path:  ${{ env.PACKAGED_OUTPUTPATH }}/*.img.gz
 
 #    - name: Upload OpenWrt Firmware to Releases
