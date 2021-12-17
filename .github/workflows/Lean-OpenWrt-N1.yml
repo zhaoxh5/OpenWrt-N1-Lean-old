@@ -1,41 +1,27 @@
 #
+# Copyright (c) 2019-2021 P3TERX <https://p3terx.com>
 #
-# 感谢p3terx大神的一键编译脚本
-# 
-# Copyright (C) 2019 P3TERX <https://p3terx.com>
-# <https://github.com/P3TERX/Actions-OpenWrt.git>
+# This is free software, licensed under the MIT License.
+# See /LICENSE for more information.
 #
-#修改以下代码或者开启触发开关都好，要严格按格式对好,前面有多少空格也要看清楚
-#代码里有 name: 后面的内容随便改,冒号后面是有个空格的,如果修改固件名字就要考虑能不能显示出你想要的
+# https://github.com/P3TERX/Actions-OpenWrt
+# Description: Build OpenWrt using GitHub Actions
+#
 
-
-name: Lean-OpenWrt-N1 固件
+name: Build OpenWrt
 
 on:
   repository_dispatch:
-
-#编辑任意指定文件触发开始编译(去掉下面5个#开启,最下面一行是指定修改什么文件就触发编译,我现在是修改diy.config文件触发)
-#  push:
-#    branches:
-#      - master
-#    paths:
-#      - 'diy.config'
-
-
-#release发布触发开始编译(只是一个触发条件,不会发布的,又麻烦,没卵用,不用研究)
-#  release:
-#    types: published
-
-
-#定时触发开始编译(开启定时编译请先关闭SSH,要不然SSH没人管,会卡SSH编译失败)
-#  schedule:
-#    - cron: 0 8 */9 * *
-
+  workflow_dispatch:
+    inputs:
+      ssh:
+        description: 'SSH远程连接（配置固件）(true/false)'
+        required: false
+        default: 'false'
 
 #点☆Star触发开始编译
-  watch:
-    types: started
-
+#  watch:
+#    types: started
 
 env:
   REPO_URL: https://github.com/coolsnowwolf/lede
@@ -43,7 +29,6 @@ env:
   FEEDS_CONF: feeds.conf.default
   CONFIG_FILE: diy.config
   DIY_OP_SH: diy.sh
-  SSH_ACTIONS: false
   UPLOAD_BIN_DIR: false
   UPLOAD_CONFIG: true
   UPLOAD_FIRMWARE: true
@@ -53,7 +38,7 @@ env:
 
 jobs:
   build:
-    name: 编译OpenWrt-lede固件
+    name: 编译OpenWrt固件
     runs-on: ubuntu-20.04
     if: github.event.repository.owner.id == github.event.sender.id
 
@@ -73,7 +58,7 @@ jobs:
         sudo timedatectl set-timezone "$TZ"
         sudo mkdir -p /workdir
         sudo chown $USER:$GROUPS /workdir
-
+        
     - name: 下载固件源码
       working-directory: /workdir
       run: |
@@ -87,21 +72,23 @@ jobs:
         chmod +x $DIY_OP_SH
         cd openwrt
         $GITHUB_WORKSPACE/$DIY_OP_SH
-
+        
     - name: 下载feeds跟安装自定义插件
       run: |
         cd openwrt
         ./scripts/feeds update -a
         ./scripts/feeds install -a
-
     - name: 加载diy.config设置
       run: |
         [ -e files ] && mv files openwrt/files
         [ -e $CONFIG_FILE ] && mv $CONFIG_FILE openwrt/.config
-
-    - name: SSH远程连接服务器配置固件
+        
+    - name: SSH远程连接（配置固件）
       uses: P3TERX/ssh2actions@v1.0.0
-      if: env.SSH_ACTIONS == 'true' || contains(github.event.action, 'ssh')
+      if: (github.event.inputs.ssh == 'true' && github.event.inputs.ssh  != 'false') || contains(github.event.action, 'ssh')
+      env:
+        TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
 
     - name: 生成配置文件
       run: |
@@ -116,52 +103,6 @@ jobs:
       with:
         name: N1.Lean.config_${{ env.Compile_Date }}
         path: config.txt
-    
-    - name: 提取config.buildinfo配置文件
-      id: config
-      run: |
-          rm -rf config && mkdir config
-          find openwrt/bin/targets/ -name "*config.buildinfo*" | xargs -i mv -f {} config
-                    
-    - name: 上传.config配置文件在github空间    
-      if: env.UPLOAD_CONFIG == 'true'
-      uses: actions/upload-artifact@main
-      with:
-        name: config.buildinfo_${{ env.Compile_Date }}
-        path: ./config
-
-
-#        echo "TARGET_BOARD=$(awk -F '[="]+' '/TARGET_BOARD/{print $2}' .config)" >> $GITHUB_ENV
-#        echo "TARGET_SUBTARGET=$(awk -F '[="]+' '/TARGET_SUBTARGET/{print $2}' .config)" >> $GITHUB_ENV
-#        if [ `grep -c "CONFIG_TARGET_x86_64=y" .config` -eq '1' ]; then
-#         echo "TARGET_PROFILE=x86-64" >> $GITHUB_ENV
-#        elif [ `grep -c "CONFIG_TARGET_x86_generic=y" .config` -eq '1' ]; then
-#         echo "TARGET_PROFILE=x86-32" >> $GITHUB_ENV
-#        elif [ `grep -c "CONFIG_TARGET.*DEVICE.*=y" .config` -eq '1' ]; then
-#          grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/.*DEVICE_(.*)=y/\1/' > DEVICE_NAME
-#          [ -s DEVICE_NAME ] && echo "TARGET_PROFILE=$(cat DEVICE_NAME)" >> $GITHUB_ENV
-#        else
-#          echo "TARGET_PROFILE=armvirt" >> $GITHUB_ENV
-#        fi
-        
-#    - name: 编译信息
-#      run: |
-#        cd openwrt
-#        ./scripts/diffconfig.sh > ${GITHUB_WORKSPACE}/config.txt
-#        source "${PATH1}/common.sh" && Diy_chuli > /dev/null 2>&1
-#        if [ "${REGULAR_UPDATE}" == "true" ]; then
-#          source "${PATH1}/upgrade.sh" && Diy_Part2 > /dev/null 2>&1
-#        fi
-#        if [ "${BY_INFORMATION}" == "true" ]; then
-#          source "${PATH1}/upgrade.sh" && GET_TARGET_INFO
-#          source "${PATH1}/common.sh" && Diy_xinxi
-#        fi
-#    - name: 上传.config配置文件在 github actions
-#      uses: actions/upload-artifact@v2
-#      if: env.UPLOAD_CONFIG == 'true'
-#      with:
-#        name: N1.Lean.config_${{ env.MY_DATE }}
-#        path: config.txt
 
     - name: 下载软件包
       id: package
@@ -171,7 +112,7 @@ jobs:
         make download -j8
         find dl -size -1024c -exec ls -l {} \;
         find dl -size -1024c -exec rm -f {} \;
-
+        
     - name: 开始编译固件
       id: compile
       run: |
@@ -182,7 +123,7 @@ jobs:
         grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/.*DEVICE_(.*)=y/\1/' > DEVICE_NAME
         [ -s DEVICE_NAME ] && echo "DEVICE_NAME=_$(cat DEVICE_NAME)" >> $GITHUB_ENV
         echo "FILE_DATE=_$(date +"%Y%m%d%H%M")" >> $GITHUB_ENV
-
+        
     - name: 检查github储存空间情况
       if: (!cancelled())
       run: df -hT
@@ -193,8 +134,6 @@ jobs:
       with:
         name: OpenWrt_bin_${{ env.DEVICE_NAME }}_${{ env.FILE_DATE }}
         path: openwrt/bin
-        
-
 
 #    - name: 提取config.buildinfo配置文件
 #      id: config
@@ -224,23 +163,23 @@ jobs:
       with:
         name: OpenWrt_firmware_${{ env.DEVICE_NAME }}_${{ env.FILE_DATE }}
         path: ${{ env.FIRMWARE }}
-        
-    - name: Package Armvirt as OpenWrt
+
+    - name: 打包 N1 的OpenWrt固件
       uses: unifreq/openwrt_packit@master
       env:
         OPENWRT_ARMVIRT: openwrt/bin/targets/*/*/*.tar.gz
         PACKAGE_SOC: s905d
-        KERNEL_VERSION_NAME: 5.4.144
+        KERNEL_VERSION_NAME: 5.4.150
+        ENABLE_WIFI_K504: 0
 
     - name: 上传已打包固件在github空间
       uses: actions/upload-artifact@main
       if: steps.organizer.outputs.status == 'success' && env.UPLOAD_FIRMWARE == 'true'
       with:
-        name: openwrt_armvirt_${{ env.KERNEL_VERSION_NAME }}
-#        name: openwrt_armvirt_${{ env.PACKAGED_OUTPUTDATE }}
+        name: openwrt_N1_${{ env.PACKAGED_OUTPUTDATE }}
         path:  ${{ env.PACKAGED_OUTPUTPATH }}/*.img.gz
 
-#    - name: Upload OpenWrt Firmware to Releases
+#    - name: 上传已打包固件在Releases空间
 #      uses: softprops/action-gh-release@v1
 #      env:
 #        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -254,7 +193,6 @@ jobs:
         curl -fsSL git.io/file-transfer | sh
         ./transfer cow --block 2621440 -s -p 64 --no-progress ${FIRMWARE} 2>&1 | tee cowtransfer.log
         echo "::warning file=↓↓无需注册直接下载↓↓奶牛快传下载地址↓↓::$(cat cowtransfer.log | grep https)"
-
     - name: 上传固件到WeTransfer
       if: steps.organizer.outputs.status == 'success' && env.UPLOAD_WETRANSFER == 'true' && !cancelled()
       run: |
