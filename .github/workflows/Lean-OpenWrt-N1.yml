@@ -158,6 +158,8 @@ jobs:
       id: organizer
       run: |
         cd openwrt/bin/targets/*/*
+        rm -rf packages
+        rm -rf tmp
         echo "FIRMWARE=$PWD" >> $GITHUB_ENV
         echo "::set-output name=status::success"
         
