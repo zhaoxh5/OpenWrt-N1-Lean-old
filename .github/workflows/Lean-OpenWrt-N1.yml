@@ -172,11 +172,13 @@ jobs:
 
     - name: 打包 N1 的OpenWrt固件
       uses: unifreq/openwrt_packit@master
-      env:
-        OPENWRT_ARMVIRT: openwrt/bin/targets/*/*/*.tar.gz
-        PACKAGE_SOC: s905d
-        KERNEL_VERSION_NAME: 5.4.150
-        ENABLE_WIFI_K504: 0
+      if: steps.organizer.outputs.status == 'success' && env.UPLOAD_FIRMWARE == 'true'
+      with:
+        env:
+          OPENWRT_ARMVIRT: openwrt/bin/targets/*/*/*.tar.gz
+          PACKAGE_SOC: s905d
+          KERNEL_VERSION_NAME: 5.4.150
+          ENABLE_WIFI_K504: 0
 
     - name: 上传已打包固件在github空间
       uses: actions/upload-artifact@main
